@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konversi Koordinat</title>
+    <style>
+        /*  Import font  */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        /*  Basic styling  */
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: #111;
+            color: #0f0;
+            text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        header {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        section {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+            color: #0f0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #0f0;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 2px solid #0f0;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #0f0;
+        }
+
+        button {
+            background-color: #0f0;
+            color: black;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #32cd32;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(50, 205, 50, 0.8);
+        }
+
+        /* Watermark */
+        #watermark {
+            font-size: 10px;
+            opacity: 0.5; 
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            animation: watermark-fade 4s infinite alternate;
+            color: #39ff14;
+            text-shadow: 0 0 2px #006400; 
+        }
+
+        @keyframes watermark-fade {
+            from {
+                opacity: 0.5; 
+            }
+
+            to {
+                opacity: 0.2; 
+            }
+        }
+
+        /* Responsive design */
+        @media screen and (max-width: 800px) {
+            main {
+                flex-direction: column;
+            }
+
+            section {
+                margin-bottom: 1.5rem; 
+            }
+            .input-group {
+                margin-bottom: 8px; 
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            input[type="number"] {
+                font-size: 14px;
+            }
+            .mode-button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
+        }
+
+        /*  UI/UX Mode  */
+        #mode-select {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .mode-button {
+            background-color: rgba(0, 255, 0, 0.2);
+            color: #0f0;
+            border: none;
+            padding: 10px 15px;
+            font-family: 'Press Start 2P', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+        }
+
+        .mode-button:hover {
+            background-color: rgba(50, 205, 50, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .mode-button.active {
+            background-color: #0f0;
+            color: black;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Konversi Koordinat</h1>
+        <div id="watermark">Dibuat oleh Astrit Dwi Antika untuk Kalkulus</div>
+    </header>
+
+    <main>
+        <section id="input-section">
+            <h2>Pilih Mode Konversi</h2>
+            <div id="mode-select">
+                <button class="mode-button active" data-mode="kartesian">Kartesius ke Polar</button>
+                <button class="mode-button" data-mode="polar">Polar ke Kartesius</button>
+            </div>
+            <form id="koordinat-form">
+                <div class="input-group">
+                    <label for="x">Nilai X:</label>
+                    <input type="number" id="x" name="x">
+                </div>
+                <div class="input-group">
+                    <label for="y">Nilai Y:</label>
+                    <input type="number" id="y" name="y">
+                </div>
+                <div class="input-group">
+                    <label for="r">Jari-jari (r):</label>
+                    <input type="number" id="r" name="r">
+                </div>
+                <div class="input-group">
+                    <label for="theta">Sudut (θ):</label>
+                    <input type="number" id="theta" name="theta">
+                </div>
+                <button type="button" onclick="konversi()">Konversi</button>
+            </form>
+        </section>
+
+        <section id="output-section">
+            <h2>Hasil Konversi:</h2>
+            <div id="hasil-konversi"></div>
+            <canvas id="grafik"></canvas>
+        </section>
+    </main>
+
+    <footer>
+        <p>Calculus</p>
+    </footer>
+    <script>
+        // JavaScript untuk Tombol Mode
+        const modeButtons = document.querySelectorAll('.mode-button');
+        modeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                modeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                var mode = button.getAttribute("data-mode");
+                console.log("Mode yang dipilih:", mode);
+            });
+        });
+
+        function konversi() {
+            var mode = document.querySelector('.mode-button.active').getAttribute("data-mode");
+            var x = parseFloat(document.getElementById("x").value) || 0;
+            var y = parseFloat(document.getElementById("y").value) || 0;
+            var r = parseFloat(document.getElementById("r").value) || 0;
+            var theta = parseFloat(document.getElementById("theta").value) || 0;
+            var hasil = "";
+
+            if (mode === "kartesian") {
+                var jarijari = Math.sqrt(x * x + y * y);
+                var sudut = Math.atan2(y, x) * 180 / Math.PI;
+                hasil = "Jari-jari (r): " + jarijari.toFixed(2) + ", Sudut (θ): " + sudut.toFixed(2) + " derajat";
+            } else if (mode === "polar") {
+                var xHasil = r * Math.cos(theta * Math.PI / 180);
+                var yHasil = r * Math.sin(theta * Math.PI / 180);
+                hasil = "Nilai X: " + xHasil.toFixed(2) + ", Nilai Y: " + yHasil.toFixed(2);
+            }
+
+            document.getElementById("hasil-konversi").innerText = hasil;
+        }
+    </script>
+</body>
+</html>
